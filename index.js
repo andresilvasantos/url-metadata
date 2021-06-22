@@ -46,7 +46,7 @@ module.exports = function (url, options) {
       if (opts.decode) {
         body = opts.decode(body)
       }
-      return dfd.resolve(parse(url, body, opts))
+      return dfd.resolve(parse(url, body, opts), response)
     }
   })
 
