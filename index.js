@@ -46,7 +46,13 @@ module.exports = function (url, options) {
       if (opts.decode) {
         body = opts.decode(body)
       }
-      return dfd.resolve(parse(url, body, opts), response)
+      
+      const frameOptions = response.headers['x-frame-options']
+      const metadata = parse(url, body, opts)
+
+      metadata.allowsEmbed = frameOptions != 'SAMEORIGIN' && frameOptions != 'DENY'
+      
+      return dfd.resolve(metadata)
     }
   })
 
