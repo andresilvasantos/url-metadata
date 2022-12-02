@@ -46,12 +46,14 @@ module.exports = function (url, options) {
       if (opts.decode) {
         body = opts.decode(body)
       }
-      
+
+      const contentType = response.headers['content-type']
       const frameOptions = response.headers['x-frame-options']
       const metadata = parse(url, body, opts)
 
       metadata.allowsEmbed = frameOptions != 'SAMEORIGIN' && frameOptions != 'DENY'
-      
+      metadata.contentType = contentType
+
       return dfd.resolve(metadata)
     }
   })
