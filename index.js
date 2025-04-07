@@ -51,6 +51,7 @@ module.exports = function (url, options) {
   let destinationUrl = ''
   let contentType
   let charset
+  let frameOptions
 
   async function fetchData (_url, redirectCount = 0) {
     if (redirectCount > opts.maxRedirects) {
@@ -97,6 +98,7 @@ module.exports = function (url, options) {
 
         // validate response content type
         contentType = response.headers.get('content-type')
+        frameOptions = response.headers.get('x-frame-options')
         const isText = contentType && contentType.startsWith('text')
         const isHTML = contentType && contentType.includes('html')
         if (!isText || !isHTML) {
@@ -118,7 +120,12 @@ module.exports = function (url, options) {
         try {
           const decoder = new TextDecoder(charset)
           const responseDecoded = decoder.decode(responseBuffer)
-          resolve(parse(requestUrl, destinationUrl, responseDecoded, opts))
+          const metadata = parse(requestUrl, destinationUrl, responseDecoded, opts)
+
+          metadata.allowsEmbed = frameOptions != 'SAMEORIGIN' && frameOptions != 'DENY'
+          metadata.contentType = contentType
+
+          resolve(metadata)
         } catch (e) {
           reject(new Error(`decoding with charset: ${charset}`))
         }
